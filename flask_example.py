@@ -1,29 +1,19 @@
 from flask import Flask
-
-
 import asyncpraw
 import pandas as pd
-
 import io
 import requests
 import json
-
 import re
-
 import math
-
 import asyncio
-
 import redis
-
 import pprint
 import time
 import functools
-
 from datetime import datetime
 from dateutil import tz
 import datetime
-
 import news
 import spacy
 import nltk
@@ -32,13 +22,10 @@ nltk.download('vader_lexicon')
 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-
 from spacy import displacy
 from pathlib import Path
 
 from cairosvg import svg2png
-
-
 
 import io
 import random
@@ -53,7 +40,7 @@ r = redis.Redis(
 host='localhost',
 port=6379,)
 
-r = redis.Redis(db=6)
+r = redis.Redis(db=7)
 
 
 app = Flask(__name__)
@@ -64,67 +51,88 @@ processed_posts = []
 #processed_posts += [str(post_ret) for post_ret in posts_ret]
 
 all_mets = {}
-
-cursor = 0
-
+all_counts = {}
 
 
-while(True):
-    cursor, posts_ret = r.scan(cursor, "submi:*", 100)
-    for post in posts_ret:
-        tickers_ment = r.hget(post, "tickers_ment").decode("utf-8") 
-        if(tickers_ment != ""):
-            score = max(int(r.hget(post, "score")), 1)
-            #score = 0.1 + math.log(score+0.1)/math.log(10)
-            for tick in tickers_ment.split(';'):
-                if(tick in all_mets):
-                    all_mets[tick] += score
-                else:
-                    all_mets[tick] = score
 
-    if(cursor == 0):
-        break
+def proccess_data():
+    global all_mets
+    global all_counts
 
-all_mets.pop('ARE', None)
-all_mets.pop('T', None)
-all_mets.pop('FOR', None)
-all_mets.pop('TWO', None)
-all_mets.pop('BE', None)
-all_mets.pop('X', None)
-all_mets.pop('AA', None)
-all_mets.pop('L', None)
-all_mets.pop('LOVE', None)
-all_mets.pop('OR', None)
-all_mets.pop('RE', None)
-all_mets.pop('FL', None)
-all_mets.pop('REAL', None)
-all_mets.pop('OUT', None)
-all_mets.pop('SAFE', None)
-all_mets.pop('SO', None)
-all_mets.pop('ON', None)
-all_mets.pop('IP', None)
-all_mets.pop('BIG', None)
-all_mets.pop('LAND', None)
-all_mets.pop('GOOD', None)
-all_mets.pop('SI', None)
-all_mets.pop('RIDE', None)
-all_mets.pop('MAR', None)
-all_mets.pop('UK', None)
-all_mets.pop('TV', None)
-all_mets.pop('M', None)
-all_mets.pop('Y', None)
-all_mets.pop('PS', None)
-all_mets.pop('R', None)
-all_mets.pop('EVER', None)
-all_mets.pop('PLUG', None)
-all_mets.pop('AI', None)
-all_mets.pop('WELL', None)
+    all_mets = {}
+    all_counts = {}
+
+    cursor = 0
+
+    while(True):
+        cursor, posts_ret = r.scan(cursor, "submi:*", 100)
+        for post in posts_ret:
+            tickers_ment = r.hget(post, "tickers_ment").decode("utf-8") 
+            if(tickers_ment != ""):
+                score = max(int(r.hget(post, "score")), 1)
+                #score = 0.1 + math.log(score+0.1)/math.log(10)
+                for tick in tickers_ment.split(';'):
+                    if(tick in all_mets):
+                        all_mets[tick] = [all_mets[tick][0] + score, all_mets[tick][1] + 1]
+                    else:
+                        all_mets[tick] = [score, 1]
+
+        if(cursor == 0):
+            break
+
+    all_mets.pop('ARE', None)
+    all_mets.pop('T', None)
+    all_mets.pop('FOR', None)
+    all_mets.pop('TWO', None)
+    all_mets.pop('BE', None)
+    all_mets.pop('X', None)
+    all_mets.pop('AA', None)
+    all_mets.pop('L', None)
+    all_mets.pop('LOVE', None)
+    all_mets.pop('OR', None)
+    all_mets.pop('RE', None)
+    all_mets.pop('FL', None)
+    all_mets.pop('REAL', None)
+    all_mets.pop('OUT', None)
+    all_mets.pop('SAFE', None)
+    all_mets.pop('SO', None)
+    all_mets.pop('ON', None)
+    all_mets.pop('IP', None)
+    all_mets.pop('BIG', None)
+    all_mets.pop('LAND', None)
+    all_mets.pop('GOOD', None)
+    all_mets.pop('SI', None)
+    all_mets.pop('RIDE', None)
+    all_mets.pop('MAR', None)
+    all_mets.pop('UK', None)
+    all_mets.pop('TV', None)
+    all_mets.pop('M', None)
+    all_mets.pop('Y', None)
+    all_mets.pop('PS', None)
+    all_mets.pop('R', None)
+    all_mets.pop('EVER', None)
+    all_mets.pop('PLUG', None)
+    all_mets.pop('AI', None)
+    all_mets.pop('WELL', None)
 
 
-for key, val in all_mets.items():
-    all_mets[key] = math.log(val+0.01)/math.log(10)
+    all_m = {}
+    all_counts = {}
 
-all_mets = {k: v for k, v in sorted(all_mets.items(), key=lambda item: item[1])}
+    for key, val in all_mets.items():
+        all_m[key] = math.log(val[0]+0.01)/math.log(10)
+        all_counts[key] = val[1]
+
+    all_mets = all_m
+
+
+    for key, val in all_mets.items():
+        all_mets[key] = math.log(val+0.01)/math.log(10)
+
+    all_mets = {k: v for k, v in sorted(all_mets.items(), key=lambda item: item[1])}
+    all_counts = {k: v for k, v in sorted(all_counts.items(), key=lambda item: item[1])}
+
+
 
 last_process_idx = 5
 
@@ -182,27 +190,30 @@ def create_csv():
             break
 
 
-
-
-
-
-
 def create_figure():
-    fig = Figure()
-    axis = fig.add_subplot(1, 1, 1)
-    #xs = range(100)
-    #ys = [random.randint(1, 50) for x in xs]
+    #fig = Figure()
+    #axis = fig.add_subplot(1, 1, 1)
+    #axis1 = fig.add_subplot(2, 1, 1)
 
-    #plt.bar(*zip(*all_mets.items()))
+    fig, axs = plt.subplots(2)
+    fig.suptitle('Ticker Score and Ticker Mentions')
 
-    keys_ment = list(all_mets.keys())
-    keys_ment.reverse()
+    keys_ment_score = list(all_mets.keys())
+    keys_ment_score.reverse()
 
     vals_ment = list(all_mets.values())
     vals_ment.reverse()
 
+    keys_ment_count = list(all_counts.keys())
+    keys_ment_count.reverse()
+
+    counts_ment = list(all_counts.values())
+    counts_ment.reverse()
+
     
-    axis.bar(keys_ment[0:10], vals_ment[0:10])
+    axs[0].bar(keys_ment_score[0:10], vals_ment[0:10])
+    axs[1].bar(keys_ment_count[0:10], counts_ment[0:10])
+
     return fig
 
 
@@ -227,9 +238,6 @@ def plot_last_sent():
 
 def html_last_sent():
     nlp = spacy.load("en_core_web_lg")
-
-    #sentence = "Apple is looking at buying U.K. startup for $1 billion"
-
     processed_sentence = get_last_process()
 
     sentence = processed_sentence['body'].strip()
@@ -243,22 +251,13 @@ def html_last_sent():
     sid = SentimentIntensityAnalyzer()
     sentiment = sid.polarity_scores(doc.text)
 
-    
-    #import pudb; pudb.set_trace()
-
     if(tickers_ment != ['']):
         for ticker in tickers_ment:
             pos = doc.text.find(ticker)
             tk_spans.append(doc.char_span(pos, pos + len(ticker), label="ORG"))
 
-    #print(sentence)
-
-    #sentence = parsed_last_sent
-
-    #sp = doc.char_span(doc.text.find('SPY'), doc.text.find('SPY')+len('SPY'), label="ORG")
     doc.ents = list(doc.ents) + tk_spans
 
-    #print(len(doc.ents))
     svg = displacy.render(doc, style="ent", jupyter=False)
 
     return svg, sentiment
@@ -276,6 +275,7 @@ def plot_png():
 @app.route('/')
 def hello():
     name = "Hello"
+    proccess_data()
     svg, sentiment_post = html_last_sent()
     return render_template('index.html', title='Welcome', username=name,  last_sent_html=Markup(svg), sentiment=sentiment_post)
 

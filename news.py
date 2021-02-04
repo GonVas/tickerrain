@@ -48,6 +48,7 @@ for index, row in tickers_pd.iterrows():
 print('Len of ticker after: ' + str(len(tickers_pd)))
 tickers = list(tickers_pd['Symbol'])
 
+
 tickers.append('SPY')
 
 tickers.remove('A')
@@ -74,6 +75,41 @@ tickers.remove('PSA')
 tickers.remove('FREE')
 tickers.remove('SEE')
 
+
+
+tickers.remove('TWO')
+tickers.remove('BE')
+tickers.remove('X')
+tickers.remove('AA')
+tickers.remove('L')
+tickers.remove('LOVE')
+tickers.remove('OR')
+tickers.remove('RE')
+tickers.remove('FL')
+tickers.remove('REAL')
+tickers.remove('OUT')
+tickers.remove('SAFE')
+tickers.remove('SO')
+tickers.remove('ON')
+tickers.remove('IP')
+tickers.remove('BIG')
+tickers.remove('LAND')
+tickers.remove('GOOD')
+tickers.remove('SI')
+tickers.remove('RIDE')
+tickers.remove('MAR')
+tickers.remove('UK')
+tickers.remove('TV')
+tickers.remove('M')
+tickers.remove('Y')
+tickers.remove('PS')
+tickers.remove('R')
+tickers.remove('EVER')
+tickers.remove('PLUG')
+tickers.remove('AI')
+tickers.remove('WELL')
+
+
 async_id = 0
 
 
@@ -82,7 +118,7 @@ r = redis.Redis(
 host='localhost',
 port=6379,)
 
-r = redis.Redis(db=6)
+r = redis.Redis(db=7)
 
 def add_to_redis(data_dic):
     with r.pipeline() as pipe:
