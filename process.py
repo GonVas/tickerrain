@@ -8,6 +8,8 @@ import pprint
 import time
 import functools
 
+import numpy as np
+
 from datetime import datetime
 from dateutil import tz
 import datetime
@@ -195,20 +197,19 @@ def process_tickers(text):
 
     list_tickers = [ticker.upper() for ticker in tickers_ment] 
 
-    print(';'.join(list_tickers))
+    return list_tickers
 
-    return ';'.join(list_tickers)
     
 
 
 nlp = spacy.load("en_core_web_lg")
 
 def sentiment(row):
-    #sentence = processed_sentence['body'].strip()
-
-    #tickers_ment = [ticker for ticker in processed_sentence['tickers_ment'].split(';')]
-
     tickers_ment = row['tickers']
+
+    if(len(tickers_ment) == 0):
+        return None, None
+
     sentence = row['body'].strip()
 
     tk_spans = []
@@ -218,27 +219,17 @@ def sentiment(row):
     sid = SentimentIntensityAnalyzer()
     sentiment = sid.polarity_scores(doc.text)
 
-    if(tickers_ment != [''] and len(tickers_ment) > 1):
-        for ticker in tickers_ment.split(';'):
+    if(len(tickers_ment) > 1):
+        for ticker in tickers_ment:
             pos = doc.text.find(ticker)
             #tk_spans.append(doc.char_span(pos, pos + len(ticker), label="ORG"))
             span = doc.char_span(pos, pos + len(ticker), label="ORG")
             #import pudb; pudb.set_trace()
-            print(f"ticker : {ticker} and tickerment {tickers_ment}, span {span}")          
-            #try:
-            #    #doc.ents = [span if e.text == ticker else e for e in doc.ents]
-            #except Exception as e:
-            #    print(e)
-            new_ents = []
-            for idx, ent in enumerate(doc.ents):
-                new_ents += [span] if ent.text == ticker else [ent]
-
-            if(ticker == "EBAY"):
-                import pudb; pudb.set_trace()
-
-            doc.ents = new_ents
-
-    #doc.ents = list(doc.ents) + tk_spans
+            #print(f"ticker : {ticker} and tickerment {tickers_ment}, span {span}")          
+            try:
+                doc.ents = [span if e.text == ticker else e for e in doc.ents]
+            except Exception as e:
+                print(e)
 
     print('Processed another one')
 
@@ -247,9 +238,33 @@ def sentiment(row):
 
 df = create_pandas()
 df['tickers'] = df.apply(lambda row: process_tickers(row.body), axis=1)
-ents, sentiments = df.apply(lambda row: sentiment(row), axis=1)
+#import pudb; pudb.set_trace()
+df["ents"], df["sentiment"] = zip(*df.apply(sentiment, axis=1))
+
+data_df = df.filter(['tickers', 'score', 'sentiment'])
+
+
+
+
+tickers_processed = pd.DataFrame(df.tickers.explode().value_counts())
+
+tickers_processed = tickers_processed.rename(columns = {'tickers':'counts'})
+
+
+
+tickers_processed['score'] = 0.0
+tickers_processed['sentiment'] = 0.0
+
+
+for idx, row_tick in enumerate(tickers_processed.iloc):
+    for row_data in data_df.iloc:
+        if(row_tick.name in row_data.tickers):
+ 
+            row_tick['sentiment'] += row_data.sentiment['compound'] / row_tick.counts
+            row_tick['score'] += int(row_data.score) / row_tick.counts
+            tickers_processed.iloc[idx] = row_tick
+
+
+
 
 import pudb; pudb.set_trace()
-
-
-
