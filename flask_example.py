@@ -27,6 +27,8 @@ from pathlib import Path
 
 from cairosvg import svg2png
 
+import process
+
 import io
 import random
 from flask import Response
@@ -167,7 +169,7 @@ def get_last_process():
             'title': p_title,
             'body':p_body,
             'process_body':process_body,
-            'tickers_ment':tickers_ment,
+            'tickers':tickers_ment,
             'score':p_score,
             }
 
@@ -240,23 +242,29 @@ def html_last_sent():
     nlp = spacy.load("en_core_web_lg")
     processed_sentence = get_last_process()
 
-    sentence = processed_sentence['body'].strip()
+    #sentence = processed_sentence['body'].strip()
 
-    tickers_ment = [ticker for ticker in processed_sentence['tickers_ment'].split(';')]
+    #tickers_ment = [ticker for ticker in processed_sentence['tickers_ment'].split(';')]
 
-    tk_spans = []
+    #tk_spans = []
 
-    doc = nlp(sentence)
+    #doc, sentiment = nlp(sentence)
 
-    sid = SentimentIntensityAnalyzer()
-    sentiment = sid.polarity_scores(doc.text)
+    #import pudb; pudb.set_trace()
 
-    if(tickers_ment != ['']):
-        for ticker in tickers_ment:
-            pos = doc.text.find(ticker)
-            tk_spans.append(doc.char_span(pos, pos + len(ticker), label="ORG"))
+    doc, sentiment = process.sentiment(processed_sentence, ret_doc=True)
 
-    doc.ents = list(doc.ents) + tk_spans
+    if(doc == None):
+        doc = nlp(processed_sentence['body'].strip() + " \n Did Not find any tickers.")
+        sid = SentimentIntensityAnalyzer()
+        sentiment = sid.polarity_scores(doc.text)
+
+    #if(tickers_ment != ['']):
+    #    for ticker in tickers_ment:
+    #        pos = doc.text.find(ticker)
+    #        tk_spans.append(doc.char_span(pos, pos + len(ticker), label="ORG"))
+
+    #doc.ents = list(doc.ents) + tk_spans
 
     svg = displacy.render(doc, style="ent", jupyter=False)
 

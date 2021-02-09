@@ -32,6 +32,8 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 from spacy import displacy
 
+import cachetools.func
+
 
 r = redis.Redis(
 host='localhost',
@@ -204,7 +206,7 @@ def process_tickers(text):
 
 nlp = spacy.load("en_core_web_lg")
 
-def sentiment(row):
+def sentiment(row, ret_doc=False):
     tickers_ment = row['tickers']
 
     if(len(tickers_ment) == 0):
@@ -233,38 +235,36 @@ def sentiment(row):
 
     print('Processed another one')
 
-    return doc.ents, sentiment
+
+    if(ret_doc == False):
+        return doc.ents, sentiment
+    else:
+        return doc, sentiment
 
 
-df = create_pandas()
-df['tickers'] = df.apply(lambda row: process_tickers(row.body), axis=1)
-#import pudb; pudb.set_trace()
-df["ents"], df["sentiment"] = zip(*df.apply(sentiment, axis=1))
+@cachetools.func.ttl_cache(maxsize=128, ttl=30)
+def processed_df():
 
-data_df = df.filter(['tickers', 'score', 'sentiment'])
+    df = create_pandas()
+    df['tickers'] = df.apply(lambda row: process_tickers(row.body), axis=1)
+    #import pudb; pudb.set_trace()
+    df["ents"], df["sentiment"] = zip(*df.apply(sentiment, axis=1))
 
+    data_df = df.filter(['tickers', 'score', 'sentiment'])
 
+    tickers_processed = pd.DataFrame(df.tickers.explode().value_counts())
 
+    tickers_processed = tickers_processed.rename(columns = {'tickers':'counts'})
 
-tickers_processed = pd.DataFrame(df.tickers.explode().value_counts())
+    tickers_processed['score'] = 0.0
+    tickers_processed['sentiment'] = 0.0
 
-tickers_processed = tickers_processed.rename(columns = {'tickers':'counts'})
+    for idx, row_tick in enumerate(tickers_processed.iloc):
+        for row_data in data_df.iloc:
+            if(row_tick.name in row_data.tickers):
+     
+                row_tick['sentiment'] += row_data.sentiment['compound'] / row_tick.counts
+                row_tick['score'] += int(row_data.score) / row_tick.counts
+                tickers_processed.iloc[idx] = row_tick
 
-
-
-tickers_processed['score'] = 0.0
-tickers_processed['sentiment'] = 0.0
-
-
-for idx, row_tick in enumerate(tickers_processed.iloc):
-    for row_data in data_df.iloc:
-        if(row_tick.name in row_data.tickers):
- 
-            row_tick['sentiment'] += row_data.sentiment['compound'] / row_tick.counts
-            row_tick['score'] += int(row_data.score) / row_tick.counts
-            tickers_processed.iloc[idx] = row_tick
-
-
-
-
-import pudb; pudb.set_trace()
+    return tickers_processed
