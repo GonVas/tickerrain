@@ -32,6 +32,8 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 from spacy import displacy
 
+import asyncio
+
 import cachetools.func
 
 
@@ -69,6 +71,8 @@ def proccess_data():
 
     all_mets.pop('ARE', None)
     all_mets.pop('T', None)
+    all_mets.pop('C', None)
+    all_mets.pop('E', None)
     all_mets.pop('FOR', None)
     all_mets.pop('TWO', None)
     all_mets.pop('BE', None)
@@ -241,15 +245,7 @@ def sentiment(row, ret_doc=False):
     else:
         return doc, sentiment
 
-
-@cachetools.func.ttl_cache(maxsize=128, ttl=30)
-def processed_df():
-
-    df = create_pandas()
-    df['tickers'] = df.apply(lambda row: process_tickers(row.body), axis=1)
-    #import pudb; pudb.set_trace()
-    df["ents"], df["sentiment"] = zip(*df.apply(sentiment, axis=1))
-
+def calculate_df(df):
     data_df = df.filter(['tickers', 'score', 'sentiment'])
 
     tickers_processed = pd.DataFrame(df.tickers.explode().value_counts())
@@ -268,3 +264,46 @@ def processed_df():
                 tickers_processed.iloc[idx] = row_tick
 
     return tickers_processed
+
+def day3_filter(row):
+    now = time.time()
+    if(now - float(row['created']) < 3*86_400):
+        return True
+    else:
+        return False
+
+
+def day_filter(row):
+    now = time.time()
+    if(now - float(row['created']) < 86_400):
+        return True
+    else:
+        return False
+
+
+#@cachetools.func.ttl_cache(maxsize=128, ttl=75)
+def processed_df():
+    df = create_pandas()
+    df['tickers'] = df.apply(lambda row: process_tickers(row.body), axis=1)
+    
+    df["ents"], df["sentiment"] = zip(*df.apply(sentiment, axis=1))
+
+    df_3, df_1 = df[df.apply(day3_filter, axis=1)], df[df.apply(day_filter, axis=1)]
+
+    return calculate_df(df), calculate_df(df_3), calculate_df(df_1)
+
+
+async def processing_last():
+    while True:
+        await asyncio.sleep(120)
+        last_processed, last_processed_3, last_processed_1 = processed_df()
+        last_processed.to_pickle('tickers_df_7.p')
+        last_processed_3.to_pickle('tickers_df_3.p')
+        last_processed_1.to_pickle('tickers_df_1.p')
+        print('Finished Processing awaiting 120secs')
+        
+
+
+if __name__ == '__main__':
+
+    asyncio.run(processing_last())
