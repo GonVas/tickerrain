@@ -16,6 +16,23 @@
   margin: 5px;
 }
 
+
+.centergraph {
+  /*width: 400px;*/
+  border-radius: 15px; 
+  padding: 5px;
+  /*background: #5F85DB;*/
+  /*color: #fff; */
+  font-weight: bold;
+  font-family: Roboto;
+  flex: 0 0 10%;
+  margin: 5px;
+}
+
 .graphs{
 	margin-bottom: 10px;
+}
+
+.aboutcontainer{
+	display: flex; /* or inline-flex */
 }

@@ -104,6 +104,7 @@ def get_last_process():
 def create_figure(day=7):
     fig = plt.figure()
 
+
     fig.suptitle(f'Ticker Mentions, Score (Upvotes & Downvotes) and Sentiment (Last {day} days)')
 
     ax1 = fig.add_subplot(311)
@@ -135,6 +136,7 @@ def create_figure(day=7):
 
     plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
                     wspace=0.35)
+
 
     return fig
 

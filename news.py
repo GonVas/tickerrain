@@ -23,15 +23,6 @@ import functools
 from datetime import datetime
 from dateutil import tz
 import datetime
-# Parallel processing with Pool.apply_async()
-#import threading
-#import multiprocessing as mp
-
-
-# Acessing the reddit api
-
-#headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36"}
-#url = 'https://api.nasdaq.com/api/screener/stocks?tableonly=true&limit=25&offset=0&download=true'
 
 def float_to_datetime(fl):
     return datetime.datetime.fromtimestamp(fl)
@@ -80,6 +71,8 @@ tickers.remove('SEE')
 
 
 tickers.remove('TWO')
+tickers.remove('CC')
+tickers.remove('DTE')
 tickers.remove('BE')
 tickers.remove('X')
 tickers.remove('AA')
@@ -393,39 +386,6 @@ if __name__ == '__main__':
     
     subs_get = ["options", "thetagang", "stocks", "stockmarket", "wallstreetbets"]
 
-    #subs_get = ["options"]
-
     results = asyncio.run(reddit_get_subs(subs_get))
 
-
-    #pool = mp.Pool(4)
-
-    #result_objects = [pool.apply_async(get_posts, args=(sub, )) for sub in subs_get]
-
-    #results = [r.get() for r in result_objects]
-
-    #pool.close()
-    #pool.join()
-
-
-    """
-    for sub_df in results:
-        sub_df['tickers_mentioned'] = sub_df.apply(list_mentions, axis=1)
-
-    ticker_scores = {}
-    
-    for sub_df in results:
-        for row in sub_df.iterrows():
-            for ticker_ment in row[1]['tickers_mentioned']:
-                if ticker_ment not in ticker_scores:
-                    ticker_scores[ticker_ment] = math.log(row[1].score + 0.000001)/math.log(10) + 0.05 * math.log(len(row[1].comments) + 0.000001)/math.log(10)
-                else:
-                    ticker_scores[ticker_ment] += math.log(row[1].score + 0.000001)/math.log(10) + 0.05 * math.log(len(row[1].comments) + 0.000001)/math.log(10)
-
-
-    print(ticker_scores)
-    """
-
-    #get_posts(['options'])
-    #process_data('options')
 
