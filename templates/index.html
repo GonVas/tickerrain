@@ -19,8 +19,12 @@
     <body style="background-color:#F0F0F0;" >
 
     	<div class="container">
-    		<h1> TickerRain</h1>
-    		<h4> Refresh for analysis of a newer post </h4>
+    		<div style="text-align: center;">
+    			<span> <h1> TickerRain </h1> <h3>  Refresh page for analysis of a newer post </h3>  </span>
+
+    		</div>
+    		
+    		
 	    	<!--h3> Showing processing of last Reddit posts added to the Redis DB</h1-->
     	</div>
 
@@ -51,7 +55,7 @@
 	    	{% else %}
 	    	<p> Not a single Ticker with market cap > 300M found.</p>
 	    	{% endif %}
-	    	<p> <b> Post Sentiment {{sentiment}} </b> </p>
+	    	<p> <b> <span style="color:#96D0CD"> Post Sentiment </span> {{sentiment}} </b> </p>
 
 	    	<ul class="list_db" style="list-style-position: inside;"> 
 
@@ -84,7 +88,7 @@
 
 
 	    <div class="center">
-	    	<img src="/plot7.png" alt="7days">
+	    	<img src="/plot1.png" alt="1days">
 	   	</div>
 	    
 
@@ -97,10 +101,12 @@
 	    
 
 	    <div class="center">
-	    	<img src="/plot1.png" alt="1days">
-	    </div>
+	    	<img src="/plot7.png" alt="7days">
 
 	    	Plots are updated every 120 seconds.
+	    </div>
+
+
 
 
 

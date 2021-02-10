@@ -124,8 +124,8 @@ def create_figure(day=7):
     sents = pf.iloc[0:10, 1]
 
     ticks_c, t_counts = list(counts.index), list(counts)
-    ticks_s, t_score = list(scores.index), [math.log(score) for score in scores]#list(scores)
-    ticks_sen, t_sen = list(sents.index), [math.log(sents) for sents in sents]#list(sents)
+    ticks_s, t_score = list(scores.index), [math.log(score) - 2 for score in scores]#list(scores)
+    ticks_sen, t_sen = list(sents.index), [math.log(sents) - 2 for sents in sents]#list(sents)
 
     ax1.bar(ticks_c, t_counts)
 
