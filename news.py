@@ -20,6 +20,8 @@ import pprint
 import time
 import functools
 
+import sys
+
 from datetime import datetime
 from dateutil import tz
 import datetime
@@ -143,13 +145,13 @@ def add_to_redis_id(content_id, items):
     r.save()
 
 
-async def get_posts(sub, store_csv=False, async_id=0, sort_type="hot", process_func=None, ticker_func=None):
+async def get_posts(sub, c_id, c_secrets, store_csv=False, async_id=0, sort_type="hot", process_func=None, ticker_func=None):
 
-    reddit = asyncpraw.Reddit(client_id="Z2UCFDCH2csM2w",      # your client id
-                         client_secret="G0pmdXCVi1eZ1YwaoZlcpTadeFc",  #your client secret
-                         user_agent="Scrapping Reddit", #user agent name
-                         username = "",     # your reddit username
-                         password = "")     # your reddit password
+    reddit = asyncpraw.Reddit(client_id=c_id,     
+                         client_secret=c_secrets,  
+                         user_agent="Scrapping Reddit", 
+                         username = "",     
+                         password = "")     
 
     award_val = 5
     posts_indexed = 0
@@ -301,10 +303,10 @@ async def get_posts(sub, store_csv=False, async_id=0, sort_type="hot", process_f
     return post_data
 
 
-async def get_stream_posts(sub, async_id=0):
+async def get_stream_posts(sub, c_id, c_secrets,  async_id=0):
 
-    reddit = asyncpraw.Reddit(client_id="Z2UCFDCH2csM2w",      # your client id
-                         client_secret="G0pmdXCVi1eZ1YwaoZlcpTadeFc",  #your client secret
+    reddit = asyncpraw.Reddit(client_id=c_id,      # your client id
+                         client_secret=c_secrets,  #your client secret
                          user_agent="Scrapping Reddit", #user agent name
                          username = "",     # your reddit username
                          password = "")     # your reddit password
@@ -318,11 +320,6 @@ async def get_stream_posts(sub, async_id=0):
         print('Created: {} id: {}, Post: "{}".'.format(dt, submission.id, (submission.title[:40] + '..') if len(submission.title) > 40 else submission.title))
 
     print('Done for')
-
-
-def process_data(sub):
-    posts = pd.read_csv(sub)
-    #comments = 
 
 
 def list_mentions(row):
@@ -356,10 +353,6 @@ def process_tickers(text):
 
     return ';'.join(list_tickers)
     
-    #return [ticker.upper() for ticker in tickers_ment]   
-
-
-
 
 def test_data(text):
     tickers_ment = set([word.split("$")[-1] for word in text.split() if word.startswith('$')])
@@ -375,17 +368,28 @@ def test_data(text):
 
 
 
-async def reddit_get_subs(subs):
-    res = await asyncio.gather(*(get_posts(sub, async_id=idx, ticker_func=process_tickers) for idx, sub in enumerate(subs)))
+async def reddit_get_subs(subs, c_id, c_secret):
+    res = await asyncio.gather(*(get_posts(sub, c_id, c_secret, async_id=idx, ticker_func=process_tickers) for idx, sub in enumerate(subs)))
     return list(res)
 
 
 
 if __name__ == '__main__':
 
+    if(len(sys.argv) != 3):
+        print("Wrong number of arguments, python news.py <client_id> <client_secret>")
+    else:
     
-    subs_get = ["options", "thetagang", "stocks", "stockmarket", "wallstreetbets"]
+        client_id = sys.argv[1]
+        client_secret = sys.argv[2]
+        
+        subs = []
 
-    results = asyncio.run(reddit_get_subs(subs_get))
+        with open('substoscrap.txt') as f:
+            subs = [line.rstrip() for line in f]
+        
+        #subs_get = ["options", "thetagang", "stocks", "stockmarket", "wallstreetbets"]
+
+        results = asyncio.run(reddit_get_subs(subs, client_id, client_secret))
 
 
