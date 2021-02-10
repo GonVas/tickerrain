@@ -1,12 +1,17 @@
 # Tickerrain
-TickerRain is an open-source webapp that stores and analisys reddit posts in a transparent and semi-interactive manner. 
+TickerRain is an open-source web app that stores and analysis Reddit posts in a transparent and semi-interactive manner. 
 
 ## Overview
 
-A simple webpage will display the sentimental analysis and entities of the last post processed, then it will display DB info and finally three graphs of the most mentioned tickers in reddit.
+A simple webpage will display the sentimental analysis and entities of the last post processed, then it will display DB info and finally three graphs of the most mentioned tickers in Reddit.
+
+![Web server](/images/web_screenshot.png?raw=true "Web Server Overview")
 
 
-## Requiremnts
+The graphs are updated every 120 seconds and refreshing the page will display the analysis of a new post.
+
+
+## Requirements
 
 * pandas
 * flask
@@ -19,17 +24,18 @@ A simple webpage will display the sentimental analysis and entities of the last 
 * cachetools
 
 ## Running 
-First make sure you have a Redis DB running.
+First, make sure you have a Redis DB running.
 
 In the file `substoscrap.txt` specify what subreddits to analyze.
  
-There are 3 parts, a process to get the submissions and store them in redis DB, one to process them and then finally one to run the webserver.
+There are 3 parts, a process to get the submissions and store them in Redis DB, one to process them, and then finally one to run the webserver.
+
 
 #### Getting Submissions
 
 Run `python news.py <client_id> <client_secrets>` with arguments the crendentials for your account reddit API, see more [here](https://praw.readthedocs.io/en/latest/getting_started/authentication.html#oauth).
 
-This will start getting posts, comments and redditors from reddit and store them in Redis DB.
+This will start getting posts, comments, and Redditors from Reddit and store them in Redis DB.
 
 #### Processing Posts
 
@@ -42,16 +48,16 @@ The metrics computed right now are:
 
 #### Flask Web Server
 
-Run `python flask_example.py` to start the web server that displays the results, DB infos and the last post beign processed.
-Acess it by opening a browser and going to 127.0.0.1:5000
+Run `python flask_example.py` to start the webserver that displays the results, DB infos and the last post being processed.
+Access it by opening a browser and going to 127.0.0.1:5000
 
 ## Issues and TODO
 
-Currently the processing code, using Pandas, needs to be optimized, it needs to use Pandas in a better way.
+Currently, the processing code, using Pandas, needs to be optimized, it needs to use Pandas in a better way.
 The ticker detection needs to be improved, it emits warnings and misses some.
 
 - [ ] Improve ticker detecting, combining Spacy entities.
 - [ ] Optimize Pandas processing.
 - [ ] Add more metrics.
-- [ ] Improve design of the Web page.
+- [ ] Improve the design of the Web page.
 - [ ] Auto download of tickers.csv from NASDAQ.
