@@ -1,87 +1,30 @@
 import math
-
+import re
 import asyncio
-
-import redis
-
-import pprint
-import time
 import functools
-
-import numpy as np
-
+import time
 from datetime import datetime
 from dateutil import tz
 import datetime
 
-import news
 import spacy
-
 from spacy import displacy
-
-import nltk
 import pandas as pd
-import re
-
-import spacy
+import redis
 import nltk
 nltk.download('vader')
 nltk.download('vader_lexicon')
 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-from spacy import displacy
 
-import asyncio
-
-import cachetools.func
-
+import news
 
 r = redis.Redis(
 host='localhost',
 port=6379,)
 
 r = redis.Redis(db=8)
-
-
-processed_posts = []
-
-last_process_idx = 5
-
-
-def get_last_process():
-    global last_process_idx
-
-    last = r.lrange("last10keys", 0, 9)[last_process_idx]
-    post = r.hgetall(last)
-
-    last_process_idx = (last_process_idx + 1) % 10
-
-    p_type = 'submission'
-    tickers_ment = str(post[b'tickers_ment'].decode("utf-8"))
-    process_body = str(post[b'process_body'])
-
-    p_title = None
-    p_score = None
-    p_body = None
-
-    if(b'comment_body' in post):
-        p_type = "comment"
-        p_body = str(post[b'comment_body'].decode("utf-8"))
-        p_score = str(post[b'comment_score'])
-    else:
-        p_title = str(post[b'title'])
-        p_score = str(post[b'score'])
-        p_body = str(post[b'body'].decode("utf-8"))
-
-
-    return {"type":p_type,
-            'title': p_title,
-            'body':p_body,
-            'process_body':process_body,
-            'tickers_ment':tickers_ment,
-            'score':p_score,
-            }
 
 
 def create_pandas():
@@ -108,9 +51,6 @@ def create_pandas():
     return df
 
 
-
-
-
 def process_tickers(text):
     tickers_ment = set([word.split("$")[-1] for word in text.split() if word.startswith('$')])
 
@@ -124,8 +64,6 @@ def process_tickers(text):
     list_tickers = [ticker.upper() for ticker in tickers_ment] 
 
     return list_tickers
-
-    
 
 
 nlp = spacy.load("en_core_web_lg")
@@ -148,10 +86,7 @@ def sentiment(row, ret_doc=False):
     if(len(tickers_ment) > 1):
         for ticker in tickers_ment:
             pos = doc.text.find(ticker)
-            #tk_spans.append(doc.char_span(pos, pos + len(ticker), label="ORG"))
-            span = doc.char_span(pos, pos + len(ticker), label="ORG")
-            #import pudb; pudb.set_trace()
-            #print(f"ticker : {ticker} and tickerment {tickers_ment}, span {span}")          
+            span = doc.char_span(pos, pos + len(ticker), label="ORG")    
             try:
                 doc.ents = [span if e.text == ticker else e for e in doc.ents]
             except Exception as e:
@@ -201,26 +136,31 @@ def day_filter(row):
         return False
 
 
-#@cachetools.func.ttl_cache(maxsize=128, ttl=75)
 def processed_df():
     df = create_pandas()
+
+    print('Processing -> Getting Tickers')
     df['tickers'] = df.apply(lambda row: process_tickers(row.body), axis=1)
     
+    print('Processing -> Getting Sentiments')
     df["ents"], df["sentiment"] = zip(*df.apply(sentiment, axis=1))
 
     df_3, df_1 = df[df.apply(day3_filter, axis=1)], df[df.apply(day_filter, axis=1)]
+
+    print('Processing -> Calculating for each ticker')
 
     return calculate_df(df), calculate_df(df_3), calculate_df(df_1)
 
 
 async def processing_last():
     while True:
-        await asyncio.sleep(120)
         last_processed, last_processed_3, last_processed_1 = processed_df()
+        print('Processing -> Storing processed Files')
         last_processed.to_pickle('tickers_df_7.p')
         last_processed_3.to_pickle('tickers_df_3.p')
         last_processed_1.to_pickle('tickers_df_1.p')
         print('Finished Processing awaiting 120secs')
+        await asyncio.sleep(120)
         
 
 

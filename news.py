@@ -1,22 +1,6 @@
-
-#API key 8242e0a7358440d7aa582c1fc73e5229
-
-import asyncpraw
-import pandas as pd
-
-import io
-import requests
-import json
-
 import re
-
 import math
-
 import asyncio
-
-import redis
-
-import pprint
 import time
 import functools
 
@@ -25,6 +9,12 @@ import sys
 from datetime import datetime
 from dateutil import tz
 import datetime
+
+import redis
+import asyncpraw
+import pandas as pd
+
+
 
 def float_to_datetime(fl):
     return datetime.datetime.fromtimestamp(fl)
@@ -42,13 +32,12 @@ print('Len of ticker after: ' + str(len(tickers_pd)))
 tickers = list(tickers_pd['Symbol'])
 
 
+# Fix some missing tickers and tickers that can be confused with common words
 tickers.append('SPY')
-
 tickers.remove('A')
 tickers.remove('T')
 tickers.remove('ARE')
 tickers.remove('FOR')
-#tickers.remove('AT')
 tickers.remove('NOW')
 tickers.remove('EDIT')
 tickers.remove('POST')
@@ -69,9 +58,6 @@ tickers.remove('EV')
 tickers.remove('PSA')
 tickers.remove('FREE')
 tickers.remove('SEE')
-
-
-
 tickers.remove('TWO')
 tickers.remove('CC')
 tickers.remove('DTE')
@@ -110,7 +96,6 @@ tickers.remove('WELL')
 async_id = 0
 
 
-
 r = redis.Redis(
 host='localhost',
 port=6379,)
@@ -121,11 +106,9 @@ def add_to_redis(data_dic):
     with r.pipeline() as pipe:
         for s_id, submi in data_dic.items():
             if(r.exists(s_id)):
-                #print(f"Submission {s_id} exists not adding it")
                 continue
             else:
                 pipe.hmset(s_id, submi)
-                #pipe.hmset(f"author:{submission.author}", authors_content)
                 pipe.execute()
 
     r.save()
@@ -134,7 +117,6 @@ def add_to_redis_id(content_id, items):
     with r.pipeline() as pipe:
         if(r.exists(content_id)):
             print(f"Exists {content_id}")
-            #continue
         else:
             pipe.hmset(content_id, items)
             if("author" not in content_id):
@@ -209,7 +191,6 @@ async def get_posts(sub, c_id, c_secrets, store_csv=False, async_id=0, sort_type
                 dt = float_to_datetime(submission.created)
                 print('Created: {} id: {}, Post: "{}".'.format(dt, f"submi:{submission.id}", (submission.title[:40] + '..') if len(submission.title) > 40 else submission.title))
 
-                #print('Post Storing: "{}", score: {} created: {} id: {}'.format((submission.title[:40] + '..') if len(submission.title) > 40 else submission.title, post_contents["score"], submission.created, submission.id))
                 posts_dict[f"submi:{submission.id}"] = post_contents
 
                 add_to_redis_id(f"submi:{submission.id}", post_contents)
@@ -315,7 +296,6 @@ async def get_stream_posts(sub, c_id, c_secrets,  async_id=0):
     subreddit = await reddit.subreddit("AskReddit")
 
     async for submission in subreddit.stream.submissions():
-        #print('Post: "{}", created: {} id: {}'.format((submission.title[:40] + '..') if len(submission.title) > 40 else submission.title, submission.created, submission.id))
         dt = float_to_datetime(submission.created)
         print('Created: {} id: {}, Post: "{}".'.format(dt, submission.id, (submission.title[:40] + '..') if len(submission.title) > 40 else submission.title))
 
@@ -329,7 +309,6 @@ def list_mentions(row):
 
     text = re.sub('[^a-zA-Z0-9 \n\.]', ' ', text)
     text = [' '.join(filter(str.isupper, word.split())) for word in text.split()]
-    #tickers_ment = list(set([word for word in text.split(" ")]).intersection(set(tickers)))
     tickers_ment = tickers_ment.union(set([word for word in text]))
 
     tickers_ment = tickers_ment.intersection(set(tickers))
@@ -342,7 +321,6 @@ def process_tickers(text):
 
     text = re.sub('[^a-zA-Z0-9 \n\.]', ' ', text)
     text = [' '.join(filter(str.isupper, word.split())) for word in text.split()]
-    #tickers_ment = list(set([word for word in text.split(" ")]).intersection(set(tickers)))
     tickers_ment = tickers_ment.union(set([word for word in text]))
 
     tickers_ment = tickers_ment.intersection(set(tickers))
@@ -388,8 +366,6 @@ if __name__ == '__main__':
         with open('substoscrap.txt') as f:
             subs = [line.rstrip() for line in f]
         
-        #subs_get = ["options", "thetagang", "stocks", "stockmarket", "wallstreetbets"]
-
         results = asyncio.run(reddit_get_subs(subs, client_id, client_secret))
 
 

@@ -1,36 +1,24 @@
-from flask import Flask
-import asyncpraw
-import pandas as pd
-import io
-import requests
-import json
-import re
 import math
-import asyncio
+import io
 import redis
-import pprint
 import time
+import random
 import functools
+
 from datetime import datetime
 from dateutil import tz
 import datetime
-import news
+
+from flask import Flask
+import pandas as pd
 import spacy
 import nltk
+import cachetools.func
 nltk.download('vader')
 nltk.download('vader_lexicon')
-
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-from spacy import displacy
-from pathlib import Path
-
 from cairosvg import svg2png
-
-import process
-
-import io
-import random
 from flask import Response
 from flask import send_from_directory
 from flask import Markup
@@ -40,10 +28,10 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
-
-import cachetools.func
-
 plt.style.use('seaborn')
+
+import process
+
 
 r = redis.Redis(
 host='localhost',
@@ -159,7 +147,7 @@ def html_last_sent():
         sid = SentimentIntensityAnalyzer()
         sentiment = sid.polarity_scores(doc.text)
 
-    svg = displacy.render(doc, style="ent", jupyter=False)
+    svg = spacy.displacy.render(doc, style="ent", jupyter=False)
 
     return svg, sentiment, tickers, author, date
 
