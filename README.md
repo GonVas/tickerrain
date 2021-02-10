@@ -39,6 +39,8 @@ This will start getting posts, comments, and Redditors from Reddit and store the
 
 #### Processing Posts
 
+Run `python -m spacy download en_core_web_lg`to get spacy-model required for processing posts.
+
 Run `python process.py`, this will connect to the DB and start calculating metrics every 120 seconds, the results will be stored in 3 files, `tickers_df_<days>.p`.
 
 The metrics computed right now are:
