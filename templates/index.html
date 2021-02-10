@@ -1,26 +1,106 @@
 <html>
     <head>
-        <title>{{ title }}</title>
+        <title>TickerRain</title>
+
+
+        <link rel="stylesheet" href="styles.css">
+
+        <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto">
+	    <style>
+	      body {
+	        font-family: 'Roboto', serif;
+	      }
+	    </style>
+
+
+
     </head>
-    <body>
-	    <h1>Showing Processing of last post on REDIS DB</h1>
+    <body style="background-color:#F0F0F0;" >
+
+    	<div class="container">
+    		<h1> TickerRain</h1>
+    		<h4> Refresh for analysis of a newer post </h4>
+	    	<!--h3> Showing processing of last Reddit posts added to the Redis DB</h1-->
+    	</div>
 
 
-	    <div>
+	    <div class="container">
+
+
+	    	<div class="center" style="background-color:#FFDAB8; opacity: 0.95;">
+
+
+
+	    		<img style="margin:5px; margin:0 auto; ">{{last_sent_html}}</img>
+
+	    		<p style="font-weight:bold; font-size: 17px; color:#707070"> Reddit post by: <b style="font-weight:bold; font-size: 19px;"> {{author+";"}} </b> {{date}} </p>
+
+	    	</div>
+
+
+	    	<div class="center">
+	    	{% if tickers|length > 0 %}
 	    	
-	    	<img>{{last_sent_html}}</img>
+	    	<p> Found tickers: </p> 
 
-	    	<p> Sentiment of this post {{sentiment}}</p>
+	    		{% for ticker in tickers %}
+     			<li> {{ticker}} </li>
+  				{% endfor %}
+
+	    	{% else %}
+	    	<p> Not a single Ticker with market cap > 300M found.</p>
+	    	{% endif %}
+	    	<p> <b> Post Sentiment {{sentiment}} </b> </p>
+
+	    	<ul class="list_db" style="list-style-position: inside;"> 
+
+	    		<div style="font-weight:bold; margin-bottom: 3px; color:#707070">Reddis DB info: </div>
+	    		{% for key, val in info.items() %}
+     			<li> {{key}} : {{val}} </li>
+  				{% endfor %}
+
+	    	</ul>
+
+	    	</div>
+
+
+	    <div class="center">
+	    	
+	    	<h3>About</h3>
+
+	    	<p> TickerRain is an open-source webapp that stores and analisys reddit posts in a transparent and semi-interactive manner. 
+	    	<br> </br>
+	    	First it starts a Python process that asynchronous gets posts and comments from subreddits like wallstreetbets, options, thetagang, stockmarket, stocks and some more. The posts are stord in the DB and then another process periodacally processes the posts.
+	    	<br> </br>
+	    	Processing consists of using Pandas to compute the aggregated mentions, score (based on votes) and sentiment of each stock ticker.
+	    	Sentiment is computed using Spacy library, utilizing VADER.
+	    	The sentiment analysis of the last post is shown at the orange box before being added to the final plots.
+	    	<br> </br>
+	    	Everything is Open-source and the code for both the server and the client can be seen here.   </p>
 
 	    </div>
 
 
 
-	    <div>
+	    <div class="center">
 	    	
-	    	<img src="/plot.png" alt="my plot">
+	    	
+	    	<img src="/plot7.png" alt="7days">
+	    	<br> </br>
+	    	<img src="/plot3.png" alt="3days">
+	    	<br> </br>
+	    	<img src="/plot1.png" alt="1days">
+
+	    	Plots are updated every 120 seconds.
 
 	    </div>
+
+
+
+	    </div>
+
+
 
 	    
 	    <!--img src="/last_sent.png" alt="my sent"-->

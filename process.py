@@ -41,7 +41,7 @@ r = redis.Redis(
 host='localhost',
 port=6379,)
 
-r = redis.Redis(db=7)
+r = redis.Redis(db=8)
 
 
 processed_posts = []

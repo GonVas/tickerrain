@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap; 
+}
+.center {
+  /*width: 400px;*/
+  border-radius: 15px; 
+  padding: 5px;
+  /*background: #5F85DB;*/
+  /*color: #fff; */
+  font-weight: bold;
+  font-family: Roboto;
+  flex: 0 0 40%;
+  margin: 5px;
+}
+
+.graphs{
+	margin-bottom: 10px;
+}

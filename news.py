@@ -120,7 +120,7 @@ r = redis.Redis(
 host='localhost',
 port=6379,)
 
-r = redis.Redis(db=7)
+r = redis.Redis(db=8)
 
 def add_to_redis(data_dic):
     with r.pipeline() as pipe:
