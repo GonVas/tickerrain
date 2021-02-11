@@ -13,6 +13,8 @@ The graphs are updated every 120 seconds and refreshing the page will display th
 
 ## Requirements
 
+Python3 and the following packages:
+
 * pandas
 * flask
 * redis
@@ -22,6 +24,8 @@ The graphs are updated every 120 seconds and refreshing the page will display th
 * matplotlib
 * asyncpraw
 * cachetools
+
+Other than that you need [Cairo](https://cairosvg.org/), for example, for Ubuntu run `apt-get install libpangocairo-1.0-0`.
 
 ## Running 
 First, make sure you have a Redis DB running.
