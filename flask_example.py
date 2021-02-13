@@ -130,7 +130,7 @@ def create_figure(day=7):
 
 
 def html_last_sent():
-    nlp = spacy.load("en_core_web_lg")
+    nlp = spacy.load("en_core_web_sm")
     processed_sentence = get_last_process()
     processed_sentence['body'] = processed_sentence['body'].strip().replace("\n", "  ")
 
