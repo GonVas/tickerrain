@@ -66,7 +66,7 @@ def process_tickers(text):
     return list_tickers
 
 
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load("en_core_web_sm")
 
 def sentiment(row, ret_doc=False):
     tickers_ment = row['tickers']
