@@ -97,10 +97,8 @@ async_id = 0
 
 
 r = redis.Redis(
-host='localhost',
+host='redis',
 port=6379,)
-
-r = redis.Redis(db=8)
 
 def add_to_redis(data_dic):
     with r.pipeline() as pipe:
@@ -127,13 +125,13 @@ def add_to_redis_id(content_id, items):
     r.save()
 
 
-async def get_posts(sub, c_id, c_secrets, store_csv=False, async_id=0, sort_type="hot", process_func=None, ticker_func=None):
+async def get_posts(sub, c_id, c_secrets,username, password, store_csv=False, async_id=0, sort_type="hot", process_func=None, ticker_func=None):
 
     reddit = asyncpraw.Reddit(client_id=c_id,     
                          client_secret=c_secrets,  
                          user_agent="Scrapping Reddit", 
-                         username = "",     
-                         password = "")     
+                         username = username,     
+                         password = password)     
 
     award_val = 5
     posts_indexed = 0
@@ -289,8 +287,8 @@ async def get_stream_posts(sub, c_id, c_secrets,  async_id=0):
     reddit = asyncpraw.Reddit(client_id=c_id,      # your client id
                          client_secret=c_secrets,  #your client secret
                          user_agent="Scrapping Reddit", #user agent name
-                         username = "",     # your reddit username
-                         password = "")     # your reddit password
+                         username = "PM_ME_YOUR_OTC_PENNY",     # your reddit username
+                         password = "qm-3cFZ@")     # your reddit password
 
 
     subreddit = await reddit.subreddit("AskReddit")
@@ -346,26 +344,30 @@ def test_data(text):
 
 
 
-async def reddit_get_subs(subs, c_id, c_secret):
-    res = await asyncio.gather(*(get_posts(sub, c_id, c_secret, async_id=idx, ticker_func=process_tickers) for idx, sub in enumerate(subs)))
+async def reddit_get_subs(subs, c_id, c_secret, username, password):
+    res = await asyncio.gather(*(get_posts(sub, c_id, c_secret, username, password, async_id=idx, ticker_func=process_tickers) for idx, sub in enumerate(subs)))
     return list(res)
 
 
 
 if __name__ == '__main__':
 
-    if(len(sys.argv) != 3):
-        print("Wrong number of arguments, python news.py <client_id> <client_secret>")
+    print(sys.argv)
+
+    if(len(sys.argv) != 5):
+        print("Wrong number of arguments, python news.py <client_id> <client_secret> <username> <password>")
     else:
     
         client_id = sys.argv[1]
         client_secret = sys.argv[2]
+        username = sys.argv[3]
+        password = sys.argv[4]
         
         subs = []
 
         with open('substoscrap.txt') as f:
             subs = [line.rstrip() for line in f]
         
-        results = asyncio.run(reddit_get_subs(subs, client_id, client_secret))
+        results = asyncio.run(reddit_get_subs(subs, client_id, client_secret, username, password))
 
 

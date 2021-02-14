@@ -34,7 +34,7 @@ import process
 
 
 r = redis.Redis(
-host='localhost',
+host='redis',
 port=6379,)
 
 r = redis.Redis(db=8)

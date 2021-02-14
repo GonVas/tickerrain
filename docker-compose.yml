@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    expose:
+      - '6379'
+    networks:
+      - app-tier
+
+  # python-news:
+  #   build:
+  #     context: .
+  #     dockerfile: news/Dockerfile
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     - redis
+  #   networks:
+  #     - app-tier
+  
+  python-news:
+    build:
+      context: .
+      dockerfile: news/Dockerfile
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    networks:
+      - app-tier
+    environment:
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
+      - REDDIT_SECRET=${REDDIT_SECRET}
+      - REDDIT_USERNAME=${REDDIT_USERNAME}
+      - REDDIT_PASSWORD=${REDDIT_PASSWORD}
+  
+  python-process:
+    build:
+      context: .
+      dockerfile: process/Dockerfile
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - python-news
+    networks:
+      - app-tier
+
+networks:
+  app-tier:
+    driver: bridge

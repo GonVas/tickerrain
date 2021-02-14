@@ -21,11 +21,8 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import news
 
 r = redis.Redis(
-host='localhost',
-port=6379,)
-
-r = redis.Redis(db=8)
-
+host='redis',
+port=6379,db=8)
 
 def create_pandas():
     data_all = []
