@@ -10,12 +10,12 @@ RUN apt-get install git -y
 
 WORKDIR /app
 
-COPY ./news .
-
 COPY requirements.txt .
 
 RUN pip3 install -r requirements.txt
 
 RUN python3.8 -m spacy download en_core_web_sm
 
-CMD python3.8 news.py $REDDIT_CLIENT_ID $REDDIT_SECRET $REDDIT_USERNAME $REDDIT_PASSWORD
+EXPOSE 5000
+
+CMD python3.8 flask_example.py

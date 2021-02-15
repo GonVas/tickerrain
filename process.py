@@ -151,13 +151,17 @@ def processed_df():
 
 async def processing_last():
     while True:
-        last_processed, last_processed_3, last_processed_1 = processed_df()
-        print('Processing -> Storing processed Files')
-        last_processed.to_pickle('tickers_df_7.p')
-        last_processed_3.to_pickle('tickers_df_3.p')
-        last_processed_1.to_pickle('tickers_df_1.p')
-        print('Finished Processing awaiting 120secs')
-        await asyncio.sleep(120)
+        try:
+            last_processed, last_processed_3, last_processed_1 = processed_df()
+            print('Processing -> Storing processed Files')
+            last_processed.to_pickle('tickers_df_7.p')
+            last_processed_3.to_pickle('tickers_df_3.p')
+            last_processed_1.to_pickle('tickers_df_1.p')
+            print('Finished Processing awaiting 120secs')
+            await asyncio.sleep(120)
+        except:
+            print('exception... waiting for data')
+            pass
         
 
 

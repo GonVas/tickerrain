@@ -3,3 +3,4 @@ thetagang
 stocks
 stockmarket
 wallstreetbets
+pennystocks

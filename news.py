@@ -98,7 +98,7 @@ async_id = 0
 
 r = redis.Redis(
 host='redis',
-port=6379,)
+port=6379,db=8)
 
 def add_to_redis(data_dic):
     with r.pipeline() as pipe:
@@ -187,7 +187,7 @@ async def get_posts(sub, c_id, c_secrets,username, password, store_csv=False, as
                 authors_content["posted"] = submission.id
 
                 dt = float_to_datetime(submission.created)
-                print('Created: {} id: {}, Post: "{}".'.format(dt, f"submi:{submission.id}", (submission.title[:40] + '..') if len(submission.title) > 40 else submission.title))
+                #print('Created: {} id: {}, Post: "{}".'.format(dt, f"submi:{submission.id}", (submission.title[:40] + '..') if len(submission.title) > 40 else submission.title))
 
                 posts_dict[f"submi:{submission.id}"] = post_contents
 
@@ -232,7 +232,7 @@ async def get_posts(sub, c_id, c_secrets,username, password, store_csv=False, as
 
                             #print('Comment Storing: "{}", score: {} created: {} id: {}'.format((comment.body[:40] + '..') if len(comment.body) > 40 else comment.body, comments_contents["comment_score"], comment.created, comment.id))
                             dtc = float_to_datetime(comment.created)
-                            print('Created: {} id: {}, Post: "{}".'.format(dtc, f"comment:{comment.id}", (comment.body[:40] + '..') if len(comment.body) > 40 else comment.body))
+                            #print('Created: {} id: {}, Post: "{}".'.format(dtc, f"comment:{comment.id}", (comment.body[:40] + '..') if len(comment.body) > 40 else comment.body))
 
                             authors_content = {}
 

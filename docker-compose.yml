@@ -9,17 +9,6 @@ services:
       - '6379'
     networks:
       - app-tier
-
-  # python-news:
-  #   build:
-  #     context: .
-  #     dockerfile: news/Dockerfile
-  #   volumes:
-  #     - .:/app
-  #   depends_on:
-  #     - redis
-  #   networks:
-  #     - app-tier
   
   python-news:
     build:
@@ -27,6 +16,7 @@ services:
       dockerfile: news/Dockerfile
     volumes:
       - .:/app
+      - ./common_files:/common_files
     depends_on:
       - redis
     networks:
@@ -43,9 +33,26 @@ services:
       dockerfile: process/Dockerfile
     volumes:
       - .:/app
+      - ./common_files:/common_files
     depends_on:
       - redis
       - python-news
+    networks:
+      - app-tier
+  
+  python-web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    volumes:
+      - .:/app
+      - ./common_files:/common_files
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+      - python-news
+      - python-process
     networks:
       - app-tier
 

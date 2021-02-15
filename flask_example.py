@@ -35,10 +35,7 @@ import process
 
 r = redis.Redis(
 host='redis',
-port=6379,)
-
-r = redis.Redis(db=8)
-
+port=6379,db=8)
 
 app = Flask(__name__)
 
@@ -186,4 +183,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')

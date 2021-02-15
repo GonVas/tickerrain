@@ -1,9 +1,0 @@
-pandas
-flask
-redis
-cairosvg
-nltk
-spacy
-matplotlib
-asyncpraw
-cachetools
