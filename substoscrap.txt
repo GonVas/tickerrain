@@ -4,3 +4,5 @@ stocks
 stockmarket
 wallstreetbets
 pennystocks
+pennystocksdd
+weedstocks

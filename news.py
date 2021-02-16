@@ -25,7 +25,7 @@ tickers_pd = pd.read_csv('tickers.csv')
 print('Len of ticker before: ' + str(len(tickers_pd)))
 
 for index, row in tickers_pd.iterrows():
-    if(row['Market Cap'] < 300_000_000):
+    if(row['Market Cap'] > 2_000_000_000):
         tickers_pd = tickers_pd.drop(index)
 
 print('Len of ticker after: ' + str(len(tickers_pd)))
@@ -33,64 +33,64 @@ tickers = list(tickers_pd['Symbol'])
 
 
 # Fix some missing tickers and tickers that can be confused with common words
-tickers.append('SPY')
-tickers.remove('A')
-tickers.remove('T')
-tickers.remove('ARE')
-tickers.remove('FOR')
-tickers.remove('NOW')
-tickers.remove('EDIT')
-tickers.remove('POST')
-tickers.remove('U')
-tickers.remove('D')
-tickers.remove('DD')
-tickers.remove('CAN')
-tickers.remove('C')
-tickers.remove('E')
-tickers.remove('IT')
-tickers.remove('BEST')
-tickers.remove('GO')
-tickers.remove('ALL')
-tickers.remove('CEO')
-tickers.remove('EXPR')
-tickers.remove('RH')
-tickers.remove('EV')
-tickers.remove('PSA')
-tickers.remove('FREE')
-tickers.remove('SEE')
-tickers.remove('TWO')
-tickers.remove('CC')
-tickers.remove('DTE')
-tickers.remove('BE')
-tickers.remove('X')
-tickers.remove('AA')
-tickers.remove('L')
-tickers.remove('LOVE')
-tickers.remove('OR')
-tickers.remove('RE')
-tickers.remove('FL')
-tickers.remove('REAL')
-tickers.remove('OUT')
-tickers.remove('SAFE')
-tickers.remove('SO')
-tickers.remove('ON')
-tickers.remove('IP')
-tickers.remove('BIG')
-tickers.remove('LAND')
-tickers.remove('GOOD')
-tickers.remove('SI')
-tickers.remove('RIDE')
-tickers.remove('MAR')
-tickers.remove('UK')
-tickers.remove('TV')
-tickers.remove('M')
-tickers.remove('Y')
-tickers.remove('PS')
-tickers.remove('R')
-tickers.remove('EVER')
-tickers.remove('PLUG')
-tickers.remove('AI')
-tickers.remove('WELL')
+#tickers.append('SPY')
+# tickers.remove('A')
+# tickers.remove('T')
+# tickers.remove('ARE')
+# tickers.remove('FOR')
+# tickers.remove('NOW')
+# tickers.remove('EDIT')
+# tickers.remove('POST')
+# tickers.remove('U')
+# tickers.remove('D')
+# tickers.remove('DD')
+# tickers.remove('CAN')
+# tickers.remove('C')
+# tickers.remove('E')
+# tickers.remove('IT')
+# tickers.remove('BEST')
+# tickers.remove('GO')
+# tickers.remove('ALL')
+# tickers.remove('CEO')
+# tickers.remove('EXPR')
+# tickers.remove('RH')
+# tickers.remove('EV')
+# tickers.remove('PSA')
+# tickers.remove('FREE')
+# tickers.remove('SEE')
+# tickers.remove('TWO')
+# tickers.remove('CC')
+# tickers.remove('DTE')
+# tickers.remove('BE')
+# tickers.remove('X')
+# tickers.remove('AA')
+# tickers.remove('L')
+# tickers.remove('LOVE')
+# tickers.remove('OR')
+# tickers.remove('RE')
+# tickers.remove('FL')
+# tickers.remove('REAL')
+# tickers.remove('OUT')
+# tickers.remove('SAFE')
+# tickers.remove('SO')
+# tickers.remove('ON')
+# tickers.remove('IP')
+# tickers.remove('BIG')
+# tickers.remove('LAND')
+# tickers.remove('GOOD')
+# tickers.remove('SI')
+# tickers.remove('RIDE')
+# tickers.remove('MAR')
+# tickers.remove('UK')
+# tickers.remove('TV')
+# tickers.remove('M')
+# tickers.remove('Y')
+# tickers.remove('PS')
+# tickers.remove('R')
+# tickers.remove('EVER')
+# tickers.remove('PLUG')
+# tickers.remove('AI')
+# tickers.remove('WELL')
 
 
 async_id = 0
@@ -187,7 +187,7 @@ async def get_posts(sub, c_id, c_secrets,username, password, store_csv=False, as
                 authors_content["posted"] = submission.id
 
                 dt = float_to_datetime(submission.created)
-                #print('Created: {} id: {}, Post: "{}".'.format(dt, f"submi:{submission.id}", (submission.title[:40] + '..') if len(submission.title) > 40 else submission.title))
+                print('Created: {} id: {}, Post: "{}".'.format(dt, f"submi:{submission.id}", (submission.title[:40] + '..') if len(submission.title) > 40 else submission.title))
 
                 posts_dict[f"submi:{submission.id}"] = post_contents
 
@@ -287,8 +287,8 @@ async def get_stream_posts(sub, c_id, c_secrets,  async_id=0):
     reddit = asyncpraw.Reddit(client_id=c_id,      # your client id
                          client_secret=c_secrets,  #your client secret
                          user_agent="Scrapping Reddit", #user agent name
-                         username = "PM_ME_YOUR_OTC_PENNY",     # your reddit username
-                         password = "qm-3cFZ@")     # your reddit password
+                         username = "",     # your reddit username
+                         password = "")     # your reddit password
 
 
     subreddit = await reddit.subreddit("AskReddit")
@@ -351,8 +351,6 @@ async def reddit_get_subs(subs, c_id, c_secret, username, password):
 
 
 if __name__ == '__main__':
-
-    print(sys.argv)
 
     if(len(sys.argv) != 5):
         print("Wrong number of arguments, python news.py <client_id> <client_secret> <username> <password>")

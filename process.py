@@ -160,7 +160,7 @@ async def processing_last():
             print('Finished Processing awaiting 120secs')
             await asyncio.sleep(120)
         except:
-            print('exception... waiting for data')
+            #print('exception... waiting for data')
             pass
         
 
