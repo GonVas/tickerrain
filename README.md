@@ -13,6 +13,8 @@ The graphs are updated every 120 seconds and refreshing the page will display th
 
 ## Requirements
 
+Python3 and the following packages:
+
 * pandas
 * flask
 * redis
@@ -22,6 +24,8 @@ The graphs are updated every 120 seconds and refreshing the page will display th
 * matplotlib
 * asyncpraw
 * cachetools
+
+Other than that you need [Cairo](https://cairosvg.org/), for example, for Ubuntu run `apt-get install libpangocairo-1.0-0`.
 
 ## Running 
 First, make sure you have a Redis DB running.
@@ -38,6 +42,8 @@ Run `python news.py <client_id> <client_secrets>` with arguments the crendential
 This will start getting posts, comments, and Redditors from Reddit and store them in Redis DB.
 
 #### Processing Posts
+
+Run `python -m spacy download en_core_web_lg`to get spacy-model required for processing posts.
 
 Run `python process.py`, this will connect to the DB and start calculating metrics every 120 seconds, the results will be stored in 3 files, `tickers_df_<days>.p`.
 
