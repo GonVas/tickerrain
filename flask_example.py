@@ -168,6 +168,7 @@ def plot_timed_png():
     timed_df = process.calculate_df_timed(df, time_mins=30)
     fig = process.plot_df(timed_df)
     #fig = create_figure(day=numb)
+    fig.suptitle(f'Ticker Mentions over time')
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
