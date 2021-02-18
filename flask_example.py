@@ -4,6 +4,7 @@ import redis
 import time
 import random
 import functools
+import gzip
 
 from datetime import datetime
 from dateutil import tz
@@ -156,6 +157,17 @@ def html_last_sent():
 @app.route('/plot<numb>.png')
 def plot_png(numb):
     fig = create_figure(day=numb)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/plot_time.png')
+def plot_timed_png():
+    df = pd.read_pickle('all_df.p')
+    timed_df = process.calculate_df_timed(df, time_mins=30)
+    fig = process.plot_df(timed_df)
+    #fig = create_figure(day=numb)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
